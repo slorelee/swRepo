@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<!--fetchMgr.hta-->
+<html>
+<head>
+    <HTA:Application id="ofetchMgrUI"
+        applicationname="fetchMgrUI"
+        icon="assets\fetchMgr.ico" />
+
+    <title>fetch Manager</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" href="assets/vendor/pure-min.css" />
+    <link rel="stylesheet" href="assets/vendor/jstree/themes/default/style.min.css" />
+    <link rel="stylesheet" href="assets/vendor/jquery-ui/jquery-ui.min.css">
+
+    <link rel="stylesheet" href="assets/css/side-menu.css" />
+    <link rel="stylesheet" href="assets/css/page.css" />
+    <link rel="stylesheet" href="assets/css/page_patch.css" />
+    <link rel="stylesheet" href="assets/css/ibutton.css" />
+    <link rel="stylesheet" href="assets/css/switch.css" />
+    <link rel="stylesheet" href="assets/htakit/css/uikit-tab.css" />
+    <link rel="stylesheet" href="assets/css/alert.css" />
+    <style type="text/css">
+        #statusbar {
+            position: fixed;right: 0;top: 100%;
+            height: 30px;width: 100%;
+            transform: translate(0,-100%);
+            background-color: #191818;color: white;
+        }
+    </style>
+</head>
+
+<body  onbeforeunload="window_beforeunload()">
+<script>var $IE_VER = '0';</script>
+ <!--[if lte IE 6]>
+    <script>$IE_VER = '-6';</script>
+ <![endif]-->
+
+  <!--[if IE 7]>
+    <script>$IE_VER = '7';</script>
+ <![endif]-->
+
+ <!--[if lt IE 9]>
+    <script>$IE_VER = '8';</script>
+    <script src="assets/js/ES5_fix.js"></script>
+    <script src="assets/vendor/jquery-1.12.4.min.js"></script>
+    <style>
+        /* overwrite onoffswitch css */
+        .onoffswitch-label {
+        display: none;
+        }
+    </style>
+<![endif]-->
+
+ <!--[if gte IE 9]>
+      <script>$IE_VER = '9+';</script>
+      <script src="assets/vendor/jquery-3.3.1.min.js"></script>
+<![endif]-->
+
+<script>
+// Edage
+if ($IE_VER == '0') {
+    $IE_VER = '9+';
+    document.write('<script src="assets/vendor/jquery-3.3.1.min.js"><\/script>');
+    /*
+    var head_script = document.createElement("script");
+    head_script.type = "text/javascript";
+    head_script.src = "assets/vendor/jquery-3.3.1.min.js";
+    document.getElementsByTagName('head')[0].appendChild(head_script);
+    */
+}
+</script>
+
+<script src="assets/vendor/jstree/jstree.min.js"></script>
+<script src="assets/vendor/marked.min.js"></script>
+<script src="assets/vendor/jquery-ui/jquery-ui.min.js"></script>
+<script src="assets/htakit/js/htakit.js"></script>
+<script src="assets/js/fetch.js"></script>
+<script src="assets/js/fs_app.js"></script>
+<script src="assets/js/helper_html.js"></script>
+<script src="assets/js/helper_i18n.js"></script>
+<script src="assets/js/helper_page.js"></script>
+<script src="assets/js/definition.js"></script>
+<script src="assets/default_config.js"></script>
+<script src="config.js"></script>
+<script src="auto_config.js"></script>
+
+<div>
+  <input type="file" style="display:none" id="$f" /> <!-- gobal OpenFileDialog element -->
+</div>
+<div id="layout">
+
+<!-- ############################# Menu Start ############################# -->
+<script>
+if ($IE_VER == '9+') {
+    document.write('<a href="#menu" id="menuLink" class="menu-link">');
+    document.write('        <!-- Hamburger icon -->');
+    document.write('        <span></span>');
+    document.write('</a>');
+}
+</script>
+
+ <!--[if lt IE 9]>
+<div>
+<div id="menu_fixed" style="float:left;width:150px">
+<style>
+#menu_fixed .pure-menu {
+  height:100%;
+  background:#000;
+}
+
+#menu_fixed .pure-menu-heading {
+  color:#fff;
+}
+#menu_fixed .pure-menu-item:active {
+    background:#eee;
+}
+#menu_fixed .pure-menu-selected {
+    background:#1f8dd6;
+}
+
+#menu_fixed .pure-menu-selected a {
+    color:#fff;
+}
+</style>
+<![endif]-->
+
+<script>
+if ($IE_VER == '9+') {
+    document.write('<div id="menu">');
+}
+</script>
+    <div class="pure-menu">
+        <a class="pure-menu-heading" href="#">fetchMgr</a>
+        <ul class="pure-menu-list">
+            <li class="pure-menu-item"><a href="#" class="pure-menu-link i18n-text" id="menu_apps">APPs</a></li>
+            <li class="pure-menu-item"><a href="#" class="pure-menu-link i18n-text" id="menu_about">About</a></li>
+        </ul>
+    </div>
+</div>
+<!-- ############################# Menu End ############################# -->
+
+<!-- ############################# content Start ############################# -->
+
+<!--[if lt IE 9]>
+<div id="content" style="margin-left:160px">
+<![endif]-->
+
+<script>
+if ($IE_VER == '9+') {
+    document.write('<div id="content">');
+}
+</script>
+<div id="page_header">
+<div id="quick_sync" style="float:right;margin:15px 10px 0px 0px">
+    <a href="#" title="Sync" class="i18n-title" onclick="do_refresh();"
+       style="display:inline-block;height:48px;width:48px;background-image:url(assets/img/sync-48.png)" ></a>
+</div>
+</div>
+
+<!-- ############################# page_apps Start ############################# -->
+<div id="page_apps" class="content_page">
+<input type="checkbox" id="chk_use_proxy" style="margin-left:20px" /> Use Proxy
+<input type="checkbox" id="chk_no_pause" style="margin-left:5px" /> No Pause
+
+<script type="text/javascript">
+    if (use_proxy) {
+        $('#chk_use_proxy').prop('checked', true);
+    }
+</script>
+<div id="app_tab">
+    <div class="tab tab0"></div>
+    <div class="tab tab1"></div>
+    <div class="tab tab2"></div>
+</div>
+<div id="app_all_list" style="margin-bottom:30px">app_all_list</div>
+<script type="text/javascript">
+    $("#app_tab").ultab({header:['ALL', 'x64', 'x86']});
+    $('#app_tab .uk-tab a').click(function(){
+        filter_by_arch($(this).text());
+    });
+</script>
+
+<style type="text/css">
+table2, table2 tr td { border:1px solid #0094ff;}
+.box {
+   background-color: #f1f1f1;
+    padding: 0.01em 2px;
+    margin: 5px 10px 5px 0px;
+    box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12)!important;
+}
+.app_table tr.focus {
+    background-color:#e3e3e3;
+}
+.arch_hidden {
+    display: none;
+}
+.status_done {
+    height:24px;width:24px;
+    cursor:hand;
+    background:url(assets/img/ok-24.png);
+}
+.status_download {
+    height:24px;width:24px;
+    cursor:pointer;
+    background:url(assets/img/download-24.png);
+}
+
+</style>
+<style scoped>
+.button-green, .button-maroon, .button-orange, .button-lightblue, .button-blue {
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.button-green {
+    background: rgb(28, 184, 65); /* this is a green */
+}
+
+.button-maroon {
+    background: rgb(202, 60, 60); /* this is a maroon */
+}
+
+.button-orange {
+    background: rgb(223, 117, 20); /* this is an orange */
+}
+
+.button-lightblue {
+    background: rgb(66, 184, 221); /* this is a light blue */
+}
+.button-blue {
+    background: rgb(0, 120, 231); /* this is a blue */
+}
+
+.col_button {
+    color: #666;
+    background-color: #EEE;
+    border-color: #EEE;
+    font-weight: 300;
+
+    font-family: "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+    text-decoration: none;
+    text-align: center;
+    line-height: 24px;
+    height: 24px;
+    width: 24px;
+    padding: 0px;
+    margin: 5px;
+    display: inline-block;
+    appearance: none;
+    cursor: pointer;
+    border: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-transition-property: all;
+    transition-property: all;
+    -webkit-transition-duration: .3s;
+    transition-duration: .3s;
+}
+</style>
+</div>
+<!-- ############################# page_apps End ############################# -->
+
+<!-- ############################# page_about Start ############################# -->
+<div id="page_about" class="content_page">
+    <span>I am lazy, nothing left here.</span>
+    <button onclick="self.close()">closeMe</button>
+</div>
+<!-- ############################# page_about End ############################# -->
+
+
+</div>
+<!-- ############################# content End ############################# -->
+ <!--[if lt IE 9]>
+ </div>
+<![endif]-->
+
+</div>
+<div id="statusbar">
+    <div style="float:right;margin-top:-10px;"><p id="status_text"></p></div>
+</div>
+
+<script src="assets/js/i18n.js"></script>
+<script type="text/javascript">
+    function window_onload() {
+        var w = $width, h = $height; 
+        window.resizeTo(w, h); 
+        window.moveTo((window.screen.width - w) / 2,
+            (window.screen.height - h) / 2);
+    }
+    i18n_init();
+    window_onload();
+    if ($IE_VER != '9+') {
+        $("#menu_fixed").css('height', $height - 42);
+    }
+
+    function window_beforeunload() {
+        $width = window.outerWidth;
+        $height = window.outerHeight;
+        auto_save_settings();
+    }
+</script>
+<script src="assets/js/page_apps.js"></script>
+<script src="assets/js/menu_click.js"></script>
+<script src="assets/js/init.js"></script>
+</body>
+</html>
